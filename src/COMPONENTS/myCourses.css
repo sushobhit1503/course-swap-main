@@ -1,0 +1,11 @@
+.row-hover:hover {
+    background-color: #CA0B00;
+    color: white;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.row-hover-success:hover {
+    background-color: #4BB543;
+    color: white;
+    transition: background-color 0.3s ease-in-out;
+}

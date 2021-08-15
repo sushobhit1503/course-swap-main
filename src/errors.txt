@@ -1,0 +1,2 @@
+1. The logout button is not redirecting to main page
+2. After login it is not redirecting to dashboard
