@@ -2,19 +2,17 @@ import { firestore } from "../config"
 
 export const getAllCoursesFromStore = () => {
     let allCourses = []
-    firestore.collection("courses").where("seatsInDemand", "!=", 0).orderBy("seatsInDemand").get().then(Snapshot => Snapshot.forEach(doc => {
+    firestore.collection("courses").orderBy("seatsInDemand").get().then(Snapshot => Snapshot.forEach(doc => {
         allCourses.push(doc.data())
     }))
+    console.log(allCourses);
     return allCourses
 }
 
-export const getAllCourseNames = () => dispatch => {
+export const getAllCourseNames = () => {
     let allCourseName = []
     firestore.collection("courses").get().then(Snapshot => Snapshot.forEach(doc => {
-        allCourseName.push(doc.data().name)
+        allCourseName.push(doc.data().courseName)
     }))
-    dispatch({
-        type: "SET_COURSE_LIST",
-        payload: allCourseName
-    })
+    return allCourseName
 }

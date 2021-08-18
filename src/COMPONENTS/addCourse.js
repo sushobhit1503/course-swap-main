@@ -32,7 +32,7 @@ class addCourse extends React.Component {
         return (
             <div>
                 <Card className="course-card">
-                    <h3 style={{ paddingBottom: "20px", width: "max-content", margin: "auto" }}>ADD COURSES TO THE LIST !!</h3>
+                    <h3 style={{ paddingBottom: "20px", width: "max-content", margin: "auto", color: "#303030" }}>ADD COURSES TO THE LIST !!</h3>
                     <div style={{ margin: "auto", paddingBottom: "20px", display: "flex", flexDirection: "column" }}>
                         <Label>Course Code: </Label>
                         <TextInput onChange={onChange} value={this.state.code} name="code" type="text" placeholder="BITS FXXX" />

@@ -9,6 +9,9 @@ export const addRequirementToStore = (user, requestData) => {
             Snapshot.forEach(doc => {
                 doc.data().studentsHaveList.push(displayName)
                 doc.data().seatsInDemand = doc.data().seatsInDemand + 1
+                firestore.collectionGroup("users").doc(`${user.uid}`).update({
+                    courseHaveList: firebase.firestore.FieldValue.arrayUnion(doc.data().courseCode)
+                })
             })
         })
     }
@@ -17,11 +20,15 @@ export const addRequirementToStore = (user, requestData) => {
             studentsHaveList: firebase.firestore.FieldValue.arrayUnion(displayName),
             seatsAvailable: firebase.firestore.FieldValue.increment(1)
         })
-        courseWant.map(eachCourseWant => {
-            firestore.collection("courses").doc(`${eachCourseWant}`).update({
-                studentsWantList: firebase.firestore.FieldValue.arrayUnion(displayName),
-                seatsInDemand: firebase.firestore.FieldValue.increment(1)
-            })
+        firestore.collection("users").doc(`${user.uid}`).update({
+            courseHaveList: firebase.firestore.FieldValue.arrayUnion(courseHave)
+        })
+        firestore.collection("courses").doc(`${courseWant}`).update({
+            studentsWantList: firebase.firestore.FieldValue.arrayUnion(displayName),
+            seatsInDemand: firebase.firestore.FieldValue.increment(1)
+        })
+        firestore.collection("users").doc(`${user.uid}`).update({
+            courseWantList: firebase.firestore.FieldValue.arrayUnion(courseWant)
         })
     }
 }

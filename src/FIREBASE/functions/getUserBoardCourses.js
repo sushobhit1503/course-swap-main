@@ -11,6 +11,9 @@ export const getUserBoardHaveCourses = (user) => {
             allHaveCourseDetails.push(doc.data())
         })
     })
+    console.log(user.uid);
+    console.log(allHaveCourses);
+    console.log(allHaveCourseDetails);
     return allHaveCourseDetails
 }
 

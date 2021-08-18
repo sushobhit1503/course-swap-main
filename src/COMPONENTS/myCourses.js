@@ -20,9 +20,10 @@ class myCourses extends React.Component {
             isPageLoading: true
         }
     }
-    componentDidMount() {
+    async componentDidMount() {
         const { currentUser } = this.props.authUser
-        let courseReceiveHave = getUserBoardHaveCourses(currentUser)
+        let courseReceiveHave = await getUserBoardHaveCourses(currentUser)
+        console.log(courseReceiveHave);
         this.setState({ courseDataHave: courseReceiveHave })
         let courseReceiveWant = getUserBoardWantCourses(currentUser)
         this.setState({ courseDataWant: courseReceiveWant, isPageLoading: false })
@@ -42,8 +43,8 @@ class myCourses extends React.Component {
                             </Link>
                             <div style={{ width: "0px", marginBottom: "20px" }}></div>
                         </div>
-                        {this.state.courseDataHave.length === 0 && this.state.courseDataWant.length === 0 ?
-                            <div style={{ fontSize: "15px", textAlign: "center", color: "#303030" }}>
+                        {this.state.courseDataHave.length !== 0 && this.state.courseDataWant.length === 0 ?
+                            <div style={{ fontSize: "15px", textAlign: "center" }}>
                                 You have not added any requirements
                             </div>
                             :
@@ -57,7 +58,7 @@ class myCourses extends React.Component {
                                     <Table.TextHeaderCell>Delete</Table.TextHeaderCell>
                                 </Table.Head>
                                 <Table.Body>
-                                    {this.state.courseDataHave.map((profile) => (
+                                    {["this.state.courseDataHave"].map((profile) => (
                                         <Table.Row key={profile.id}>
                                             <Table.TextCell><b>{profile.code}</b></Table.TextCell>
                                             <Table.TextCell><b>{profile.name}</b></Table.TextCell>

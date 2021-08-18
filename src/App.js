@@ -10,23 +10,51 @@ import MyCourses from "./COMPONENTS/myCourses"
 import Toolbar from "./COMPONENTS/Toolbar"
 import Dashboard from "./COMPONENTS/dashboard"
 import { setCurrentUser } from "./REDUX/actions/authAction";
-import { auth } from "./FIREBASE/config";
+import { auth, firestore } from "./FIREBASE/config";
+import firebase from "./FIREBASE/config"
+import { courseAction } from "./REDUX/actions/courseAction"
 import { authUser } from "./FIREBASE/functions/authUser"
 
 class App extends React.Component {
   unsubscribeAuth = null
   componentDidMount() {
-    const { setCurrentUser } = this.props
+    const { setCurrentUser, courseAction } = this.props
     this.unsubscribeAuth = auth.onAuthStateChanged(async user => {
       console.log(user);
       if (user) {
-        const userRef = await authUser(user)
-        userRef.onSnapshot(snapShot => {
+        const ref = firestore.collection("users").doc(`${user.uid}`)
+        console.log(ref);
+        ref.get().then(doc => {
+          if (!doc.exists) {
+            //     return ref
+            // }
+            // else {
+            ref.set({
+              displayName: user.displayName,
+              photoURL: user.photoURL,
+              email: user.email,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              coursesHaveList: [],
+              coursesWantList: [],
+              uid: user.uid
+            })
+          }
+        })
+        console.log(ref);
+        ref.onSnapshot(snapShot => {
           setCurrentUser({
             id: snapShot.id,
             ...snapShot.data()
           })
         })
+        const { allCourseName } = this.props.courseList
+        if (allCourseName.length === 0) {
+          let allCourseNames = []
+          firestore.collection("courses").get().then(Snapshot => Snapshot.forEach(doc => {
+            allCourseNames.push(doc.data().courseName)
+          }))
+          courseAction(allCourseNames)
+        }
       }
     })
   }
@@ -40,8 +68,8 @@ class App extends React.Component {
         <Toolbar />
         <Switch>
           <Route path="/add-course" component={AddCourse} />
-          <Route path="/add-requirement" component={AddRequirement} />
-          <Route path="/my-courses" component={MyCourses} />
+          <PrivateRoute path="/add-requirement" component={AddRequirement} />
+          <PrivateRoute path="/my-courses" component={MyCourses} />
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/" component={Home} />
         </Switch>
@@ -51,11 +79,13 @@ class App extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  user: state.authUser
+  user: state.authUser,
+  courseList: state.courseList
 })
 
 const mapDispatchToProps = dispatch => ({
-  setCurrentUser: user => dispatch(setCurrentUser(user))
+  setCurrentUser: user => dispatch(setCurrentUser(user)),
+  courseAction: list => dispatch(courseAction(list))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(withRouter(App));

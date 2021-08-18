@@ -1,8 +1,9 @@
 const INITIAL_STATE = {
-    currentUser: {
-        uid: "t0wDn1Y6PGaWIxuTXVPxMTT1DzB2",
-        name: "Sushobhit Srivastava"
-    }
+    currentUser1: {
+        uid: "nxpwbWankxYsOa18qzMRJn3zAiv2",
+        displayName: "Electrical"
+    },
+    currentUser: null
 }
 
 export const userReducer = (state = INITIAL_STATE, action) => {

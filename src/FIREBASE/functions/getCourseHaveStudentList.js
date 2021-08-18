@@ -7,5 +7,6 @@ export const getCourseHaveStudentList = (code) => {
     firestore.collection("courses").doc(`${code}`).get().then(doc => {
         studentName = doc.data().studentsHaveList
     })
+    console.log(studentName);
     return studentName
 }

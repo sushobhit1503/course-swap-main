@@ -1,6 +1,9 @@
 import React from "react"
 import "./addCourse.css"
-import { Button, Card, Label, SelectMenu, Pane, Spinner } from "evergreen-ui"
+import { connect } from "react-redux"
+import { addRequirementToStore } from "../FIREBASE/functions/addRequirementToStore"
+import { getAllCoursesFromStore } from "../FIREBASE/functions/getAllCoursesFromStore"
+import { Button, Card, Label, Select, Pane, Spinner } from "evergreen-ui"
 // TASKS TO DO:
 // Replace the select items menu with courses in the database
 // Add the option of Any and None
@@ -15,17 +18,27 @@ class login extends React.Component {
             courseWant: "",
             courseList: [],
             isLoading: false,
-            isPageLoading: false
+            isPageLoading: true
         }
     }
+    async componentDidMount() {
+        const courseLists = await getAllCoursesFromStore()
+        this.setState({ courseList: courseLists, isPageLoading: false }, () => console.log(this.state))
+    }
     render() {
+        const onChange = event => {
+            const { name, value } = event.target
+            this.setState({ [name]: value })
+        }
         const onSubmit = event => {
             event.preventDefault()
             this.setState({ isLoading: true })
-            // TASKS TO DO:
-            // Store the course requirements in the course collection
-            //Show the error or confirmation message
-            // Stop loading and refresh the fields
+            if (this.state.courseWant === "" || this.state.courseHave === "")
+                this.setState({ error: "The fields can not be empty", isLoading: false })
+            else {
+                addRequirementToStore(this.props.user.currentUser, this.state)
+                this.setState({ courseHave: "", courseWant: "", isLoading: false, error: "Your requirement has been saved successfully" })
+            }
         }
         return (
             <div>
@@ -34,28 +47,30 @@ class login extends React.Component {
                         <Spinner marginX="auto" marginY={120} />
                     </Pane> :
                     <Card className="course-card">
-                        <h3 style={{ paddingBottom: "20px", width: "max-content", margin: "auto" }}>ADD YOUR REQUIREMENTS !!</h3>
+                        <h3 style={{ paddingBottom: "20px", width: "max-content", margin: "auto", color: "#303030" }}>ADD YOUR REQUIREMENTS !!</h3>
                         <div style={{ margin: "auto", paddingBottom: "20px", display: "flex", flexDirection: "column" }}>
                             <Label>Course You Have: </Label>
-                            <SelectMenu
-                                title="Select Course Name"
-                                options={['Apple', 'Apricot', 'Banana', 'Cherry', 'Cucumber'].map((label) => ({ label, value: label }))}
-                                selected={this.state.courseHave}
-                                onSelect={(item) => this.setState({ courseHave: item.value })}
-                            >
-                                <Button>{this.state.courseHave || 'Select Course Name...'}</Button>
-                            </SelectMenu>
+                            <Select name="courseHave" onChange={onChange}>
+                                <option>SELECT COURSE</option>
+                                <option value="NONE">NONE</option>
+                                {this.state.courseList.map(options => {
+                                    return (
+                                        <option value={options.courseCode}>{options.courseName}</option>
+                                    )
+                                })}
+                            </Select>
                         </div>
                         <div style={{ margin: "auto", display: "flex", flexDirection: "column", paddingBottom: "20px" }}>
                             <Label>Course You Want: </Label>
-                            <SelectMenu
-                                title="Select Course Name"
-                                options={['Apple', 'Apricot', 'Banana', 'Cherry', 'Cucumber'].map((label) => ({ label, value: label }))}
-                                selected={this.state.courseWant}
-                                onSelect={(item) => this.setState({ courseWant: item.value })}
-                            >
-                                <Button>{this.state.courseWant || 'Select Course Name...'}</Button>
-                            </SelectMenu>
+                            <Select value={this.state.courseWant} name="courseWant" onChange={onChange}>
+                                <option>SELECT COURSE</option>
+                                <option value="ANY">ANY</option>
+                                {this.state.courseList.map(options => {
+                                    return (
+                                        <option value={options.courseCode}>{options.courseName}</option>
+                                    )
+                                })}
+                            </Select>
                         </div>
                         <div style={{ color: "#CA0B00", fontSize: "15px", margin: "auto", width: "max-content" }}>
                             {this.state.error}
@@ -69,4 +84,8 @@ class login extends React.Component {
     }
 }
 
-export default login
+const mapStateToProps = state => ({
+    user: state.authUser
+})
+
+export default connect(mapStateToProps, null)(login)
